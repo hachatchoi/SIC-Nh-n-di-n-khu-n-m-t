@@ -2,14 +2,14 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#142c27"><title>Điểm Danh · Lớp môn học của bạn</title>
-  <link rel="stylesheet" href="/static/styles.css?v=schedules1">
-  <link rel="stylesheet" href="/static/dashboard.css?v=mssv6">
+  <meta name="theme-color" content="#1428a0"><title>Samsung · Quản lý lớp môn học</title>
+  <link rel="stylesheet" href="/static/styles.css?v=samsung1">
+  <link rel="stylesheet" href="/static/dashboard.css?v=samsung1">
 </head>
 <body>
   <section id="login-screen" class="login-screen">
     <form id="login-form" class="login-card">
-      <img src="/static/assets/huce-logo.png" alt="HUCE" width="56" height="56">
+      <img src="/static/assets/samsung-logo.svg" alt="Samsung" class="login-logo" width="180" height="28">
       <h1>Đăng nhập</h1><p>Điểm danh và quản lý lớp môn học.</p>
       <label>Tên đăng nhập<input name="username" autocomplete="username" required maxlength="60"></label>
       <label>Mật khẩu<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label>
@@ -19,7 +19,7 @@
     </form>
   </section>
   <aside class="sidebar" hidden>
-    <a href="/" class="brand"><img class="brand-logo" src="/static/assets/huce-logo.png" alt="Logo HUCE" width="46" height="46"><span class="brand-copy">Lớp môn học SamSung<span class="brand-sub">HUCE · QUẢN LÝ LỚP MÔN HỌC</span></span></a>
+    <a href="/" class="brand"><img class="brand-logo" src="/static/assets/samsung-logo.svg" alt="Logo Samsung" width="156" height="24"><span class="brand-copy">Lớp môn học Samsung<span class="brand-sub">QUẢN LÝ LỚP MÔN HỌC</span></span></a>
     <div class="workspace"><span class="school-icon">▦</span><div>Quản lý lớp môn học<small id="workspace-role">Quản lý điểm danh</small></div></div>
     <div class="nav-label">QUẢN LÝ</div>
     <nav aria-label="Điều hướng chính">
@@ -90,7 +90,7 @@
       </div>
       <section id="classes-view" class="view" hidden><div class="section-heading"><div><h2>Tất cả lớp môn học</h2><p>Danh sách lớp đang quản lý.</p></div><button class="button subtle" data-admin-only id="new-class"><span data-icon="plus"></span>Tạo lớp</button></div><div id="class-cards" class="class-cards"></div></section>
       <section class="panel roster-panel" id="roster-panel"><div class="panel-heading roster-heading"><div><h2 id="roster-title">Danh sách điểm danh <span id="roster-count" class="count-badge">0</span></h2><p id="roster-subtitle">Kết quả của lớp đang chọn.</p></div><div class="roster-actions"><button class="button subtle" id="bulk-open" hidden>Nhập ZIP / CSV</button><button class="button subtle" id="enroll-existing" hidden>Ghi danh có sẵn</button><button class="button primary" id="new-student" hidden><span data-icon="plus"></span>Thêm sinh viên</button><input type="date" id="history-date" aria-label="Ngày xem lịch sử" hidden><button class="button subtle" id="export"><span data-icon="download"></span>Xuất CSV</button></div></div><div class="table-toolbar"><div class="tabs" role="group" aria-label="Lọc trạng thái"><button data-filter="all" class="selected">Tất cả</button><button data-filter="present">Có mặt</button><button data-filter="pending">Chưa điểm danh</button></div><div class="search"><span data-icon="search"></span><input id="search" type="search" placeholder="Tìm tên hoặc mã sinh viên…" aria-label="Tìm sinh viên"></div></div><div class="table-scroll"><table><thead><tr><th>SINH VIÊN</th><th>MÃ SINH VIÊN</th><th>TRẠNG THÁI</th><th>GIỜ ĐIỂM DANH</th><th>PHƯƠNG THỨC</th><th></th></tr></thead><tbody id="roster-body"></tbody></table></div><div class="table-footer"><span id="table-summary">Chưa có sinh viên</span><span>Thời gian Việt Nam · GMT+7</span></div></section>
-      <footer class="page-footer"><span>Lớp môn học SamSung</span><span>HUCE</span></footer>
+      <footer class="page-footer"><span>Lớp môn học Samsung</span><span>Samsung</span></footer>
     </main>
   </div>
   <dialog id="session-dialog"><form id="session-form"><div class="dialog-heading"><div><span class="eyebrow">BUỔI HỌC</span><h2>Tạo buổi học</h2></div><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><p id="session-form-class" class="dialog-description"></p><label>Tên buổi / tiết học<input name="name" maxlength="80" placeholder="Ví dụ: Buổi sáng · Tiết 1–3" required></label><label>Ngày học<input id="new-session-day" name="day" type="date" required></label><label>Giờ bắt đầu (Việt Nam)<input name="starts_at" type="time" value="07:00" required></label><label>Giờ kết thúc (Việt Nam)<input name="ends_at" type="time" value="17:00" required></label><fieldset class="repeat-days"><legend>Lặp lại hàng tuần</legend><label><input type="checkbox" name="weekdays" value="0">T2</label><label><input type="checkbox" name="weekdays" value="1">T3</label><label><input type="checkbox" name="weekdays" value="2">T4</label><label><input type="checkbox" name="weekdays" value="3">T5</label><label><input type="checkbox" name="weekdays" value="4">T6</label><label><input type="checkbox" name="weekdays" value="5">T7</label><label><input type="checkbox" name="weekdays" value="6">CN</label></fieldset><label>Đến ngày (tùy chọn)<input name="ends_on" type="date"></label><p class="dialog-description">Không chọn thứ: tạo một buổi. Chọn thứ: lưu lịch cố định từ ngày đã chọn. Buổi hôm nay tự tạo khi mở lớp hoặc bấm Làm mới. Buổi mới ở trạng thái đóng. Chọn buổi và bấm Mở điểm danh; chỉ ghi nhận trong đúng ngày và khung giờ đã đặt.</p><p class="form-error" role="alert"></p><div class="dialog-actions"><button type="button" class="button subtle close-dialog">Hủy</button><button class="button primary" type="submit">Tạo buổi</button></div></form></dialog>
@@ -101,6 +101,6 @@
   <dialog id="schedules-dialog"><form><div class="dialog-heading"><h2>Lịch cố định</h2><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><p class="form-error" role="alert"></p><div id="schedules-list"></div><p class="dialog-description">Dừng lịch không xóa buổi và kết quả đã lưu. Muốn đổi giờ, dừng lịch rồi tạo lịch mới với tên khác.</p></form></dialog>
   <dialog id="enrollment-dialog"><form id="enrollment-form"><div class="dialog-heading"><h2>Ghi danh sinh viên</h2><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><p id="enrollment-course"></p><label>Tìm sinh viên<input id="directory-search" type="search" placeholder="Nhập tên hoặc mã sinh viên"></label><label>Sinh viên đã có hồ sơ<select id="directory-student" name="student_id" required></select></label><p>Chỉ thêm vào lớp môn học đang chọn. Không cần chụp lại khuôn mặt.</p><p class="form-error" role="alert"></p><div class="dialog-actions"><button class="button primary" type="submit">Ghi danh</button></div></form></dialog>
   <dialog id="bulk-dialog" style="width:min(1000px,95vw)"><div class="dialog-heading"><h2>Nhập sinh viên hàng loạt</h2><button type="button" class="icon-button close-dialog">×</button></div><p>ZIP gồm danh_sach.csv (UTF-8) và ảnh. Tối đa 200 dòng, ZIP 50 MB. Lớp, giảng viên, thứ, giờ và phòng phải khớp lịch cố định.</p><p><a href="/static/import-template.csv" download>Tải CSV mẫu</a> · Thứ: 2–7 hoặc CN. Sinh viên đã có hồ sơ có thể để trống ảnh.</p><input id="bulk-file" type="file" accept=".zip"><button id="bulk-preview" class="button subtle">Xem trước</button><p id="bulk-status" role="status"></p><progress id="bulk-progress" value="0" max="1" style="width:100%"></progress><div class="table-scroll" style="max-height:400px"><table><thead><tr><th>Dòng</th><th>Sinh viên</th><th>Lớp / Giảng viên</th><th>Ca / Phòng</th><th>Kết quả</th></tr></thead><tbody id="bulk-rows"></tbody></table></div><p>Chỉ nhập các dòng hợp lệ. Ảnh mới được kiểm tra khuôn mặt khi xác nhận. Giữ trang mở khi xử lý; có thể tiếp tục nếu kết nối bị lỗi.</p><button id="bulk-confirm" class="button primary" disabled>Xác nhận nhập</button></dialog>
-  <div id="toast" role="status" hidden></div><script src="/static/app.js?v=mssv6-schedules1" defer></script>
+  <div id="toast" role="status" hidden></div><script src="/static/app.js?v=session-details1" defer></script>
 </body>
 </html>

@@ -17,7 +17,7 @@
 #camera-corners{width:min(58.5cqh,80cqw);height:auto;aspect-ratio:3/4;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}
 #camera{object-fit:cover;object-position:center;inset:0}
 
-/* HUCE classroom identity */
+/* Samsung classroom identity */
 .brand-logo{width:46px;height:46px;object-fit:contain;flex-shrink:0}
 .brand-copy{font-size:18px;line-height:1.35;letter-spacing:-.45px;min-width:0}
 .brand-copy .brand-sub{font-size:6px;letter-spacing:.7px;line-height:1.6}
@@ -62,3 +62,4 @@
 .enroll-stage{container-type:size;height:300px;aspect-ratio:auto}
 .enroll-stage video,.enroll-stage img{object-fit:cover}
 #enroll-guide{width:min(58.5cqh,80cqw);height:auto;aspect-ratio:3/4;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1}
+#session-form-class { white-space: pre-line; line-height: 1.7; overflow-wrap: anywhere; }

@@ -423,7 +423,12 @@ $('#new-session').onclick = () => {
   if (!state.classId || state.recognizing) return;
   openDialog('session');
   $('#new-session-day').value = selectedDay();
-  $('#session-form-class').textContent = `Lớp ${currentClass().name}`;
+  const cls = currentClass();
+  $('#session-form-class').textContent = [
+    `Lớp môn học: ${cls.name}${cls.course_code ? ' · ' + cls.course_code : ''}`,
+    `Giảng viên: ${cls.teacher || 'Chưa phân công'}`,
+    `Phòng: ${cls.room || 'Chưa cập nhật'}`
+  ].join('\n');
 };
 $('#session-form').addEventListener('submit', async event => {
   event.preventDefault(); const form = event.currentTarget;

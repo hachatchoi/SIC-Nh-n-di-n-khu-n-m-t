@@ -1,4 +1,4 @@
-/* HUCE dashboard: shared tokens and components; camera geometry stays in styles.css. */
+/* Samsung dashboard: shared tokens and components; camera geometry stays in styles.css. */
 :root{--bg:#f5f7fb;--ink:#18243a;--muted:#637086;--green:#245cce;--line:#e0e6ef;--soft:#edf3ff;--sidebar:#fff}
 body{font-family:'Segoe UI',Arial,sans-serif;font-size:15px;color:var(--ink);background:var(--bg)}
 .sidebar{width:248px;background:#fff;color:var(--ink);border-right:1px solid var(--line);padding:28px 18px 20px}
@@ -80,3 +80,10 @@ dialog{border:1px solid #dfe6f1;border-radius:14px;padding:26px;box-shadow:0 24p
 .calendar-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;padding:18px;margin-bottom:14px}
 .calendar-navigation{display:flex;gap:6px}.calendar-controls label{display:grid;gap:6px;color:#526680;font-size:13px}.calendar-controls select,.calendar-controls input{font:inherit;padding:10px;border:1px solid #d5e2f3;border-radius:7px;background:white;max-width:100%}
 .calendar-scroll{overflow-x:auto}.teaching-calendar{width:100%;min-width:1100px;table-layout:fixed;border-collapse:collapse}.teaching-calendar.day-calendar{min-width:350px}.teaching-calendar th,.teaching-calendar td{border:1px solid #dce5ef;padding:12px;white-space:normal;vertical-align:top}.teaching-calendar th{background:#edf4fc;color:#315984;text-transform:none;font-size:14px;line-height:1.6}.teaching-calendar th:first-child{width:80px}.teaching-calendar td{height:125px;background:white}.teaching-calendar .calendar-current{background:#f0f7ff}.lesson-card{display:grid;gap:7px;padding:12px;margin-bottom:10px;border:1px solid #c9d9ed;border-left:4px solid #5686c7;border-radius:8px;background:#f1f5fb;font-size:13px;overflow-wrap:anywhere}.lesson-card strong{font-size:14px;color:#203e63}.lesson-card small{font-size:12px;color:#61748e}.lesson-card.planned{border-left-color:#8c76c6;background:#f5f2fb}.lesson-card.is-open{border-left-color:#39976a;background:#eef9f2}.lesson-card.has-conflict{border-color:#cf7b42}.conflict-label{color:#9c4215;font-size:12px}.calendar-empty{color:#a2b0c0}.calendar-legend,#calendar-caption{color:#61748e;font-size:13px;line-height:1.7}
+
+/* Samsung wordmark: preserve its wide proportions on every screen. */
+.sidebar .brand{flex-direction:column;align-items:flex-start;gap:16px}
+.sidebar .brand-logo{width:156px;height:auto;max-width:100%;padding:0;border-radius:0;background:transparent;filter:brightness(0) invert(1)}
+.sidebar .brand-copy{font-size:18px}
+.login-card .login-logo{display:block;width:180px;height:auto;margin:0 0 28px;object-fit:contain}
+@media(max-width:700px){.sidebar .brand{gap:12px}.sidebar .brand-logo{width:140px}.sidebar .brand-copy{font-size:17px}}
