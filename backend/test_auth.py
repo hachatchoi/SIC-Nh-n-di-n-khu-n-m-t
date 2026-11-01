@@ -48,12 +48,16 @@ class AuthTests(unittest.IsolatedAsyncioTestCase):
                  'headers':headers,'client':('127.0.0.1',1234),'server':('testserver',80)}
         sent = []
         received = False
+        request_sent = False
         async def receive():
-            nonlocal received
-            if received:
-                await asyncio.Event().wait()
-            received = True
-            return {'type':'http.request','body':body,'more_body':False}
+            nonlocal received, request_sent
+            if not request_sent:
+                request_sent = True
+                return {'type':'http.request','body':body,'more_body':False}
+            if not received:
+                received = True
+                return {'type':'http.disconnect'}
+            await asyncio.Event().wait()
         async def send(message): sent.append(message)
         await asyncio.wait_for(app(scope,receive,send),5)
         start = next(m for m in sent if m['type']=='http.response.start')
