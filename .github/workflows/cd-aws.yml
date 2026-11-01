@@ -1,0 +1,30 @@
+name: CD preparation (AWS)
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Package release for future AWS deployment
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create release bundle
+        shell: bash
+        run: |
+          mkdir -p dist
+          git archive --format=tar.gz --prefix=sic/ "${GITHUB_SHA}" > "dist/sic-${GITHUB_SHA::12}.tar.gz"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sic-release-${{ github.sha }}
+          path: dist/*.tar.gz
+          if-no-files-found: error
+          retention-days: 14
