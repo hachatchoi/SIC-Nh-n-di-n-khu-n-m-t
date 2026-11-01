@@ -7,13 +7,20 @@ __pycache__/
 
 # Virtual Environment
 venv/
+.venv/
+.insightface/
+*.log
 .env
 
 # Database
 attendance.db
+classroom.db
 
 # Dataset
 dataset/
+trainning/.cache/
+trainning/data/
+trainning/artifacts/
 
 # Embeddings
 embeddings/
@@ -25,3 +32,36 @@ embeddings/encodings.pkl
 # OS Files
 .DS_Store
 Thumbs.db
+
+# Project-local Python runtime
+.python/
+
+# Offline evaluation images and reports
+evaluation/data/
+evaluation/reports/
+evaluation/samples.csv
+
+# Local database backups
+backend/backups/
+
+# Credentials and local configuration
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Local databases, temporary tests and archives
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.zip
+backend/test-classroom-*/
+backend/test-auth-*/
+evaluation/evaluation-test-*/
+.pytest_cache/
+.uv-cache/
+uv-cache/
+
+# Real enrollment photos must not be committed
+samples/**/anh/*

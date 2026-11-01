@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142c27"><title>Điểm Danh · Lớp môn học của bạn</title>
+  <link rel="stylesheet" href="/static/styles.css?v=schedules1">
+  <link rel="stylesheet" href="/static/dashboard.css?v=mssv6">
+</head>
+<body>
+  <section id="login-screen" class="login-screen">
+    <form id="login-form" class="login-card">
+      <img src="/static/assets/huce-logo.png" alt="HUCE" width="56" height="56">
+      <h1>Đăng nhập</h1><p>Điểm danh và quản lý lớp môn học.</p>
+      <label>Tên đăng nhập<input name="username" autocomplete="username" required maxlength="60"></label>
+      <label>Mật khẩu<input name="password" type="password" autocomplete="current-password" required maxlength="128"></label>
+      <p id="login-error" class="form-error" role="alert"></p>
+      <button class="button primary" type="submit">Đăng nhập</button>
+      <small>Liên hệ người quản trị để được cấp tài khoản hoặc đặt lại mật khẩu.</small>
+    </form>
+  </section>
+  <aside class="sidebar" hidden>
+    <a href="/" class="brand"><img class="brand-logo" src="/static/assets/huce-logo.png" alt="Logo HUCE" width="46" height="46"><span class="brand-copy">Lớp môn học SamSung<span class="brand-sub">HUCE · QUẢN LÝ LỚP MÔN HỌC</span></span></a>
+    <div class="workspace"><span class="school-icon">▦</span><div>Quản lý lớp môn học<small id="workspace-role">Quản lý điểm danh</small></div></div>
+    <div class="nav-label">QUẢN LÝ</div>
+    <nav aria-label="Điều hướng chính">
+      <button class="nav-item" data-view="dashboard"><span data-icon="chart"></span>Tổng quan</button>
+      <button class="nav-item active" data-view="attendance"><span data-icon="scan"></span>Điểm danh<span class="nav-dot"></span></button>
+      <button class="nav-item" data-admin-only data-view="students"><span data-icon="users"></span>Sinh viên</button>
+      <button class="nav-item" data-view="classes"><span data-icon="grid"></span>Lớp môn học</button>
+      <button class="nav-item" data-view="calendar"><span data-icon="calendar"></span>Lịch dạy</button>
+      <button class="nav-item" data-view="history"><span data-icon="calendar"></span>Lịch sử</button>
+    </nav>
+    <div class="teacher"><div class="avatar">GV</div><div><strong id="teacher-account-name">Giảng viên</strong><small id="teacher-account-username"></small><button id="logout" type="button" class="button subtle">Đăng xuất</button></div><span class="online-dot"></span></div>
+  </aside>
+  <div class="app-shell" hidden>
+    <header class="topbar"><span>Lớp môn học <span class="breadcrumb">/</span> <strong id="breadcrumb">Điểm danh</strong></span><div class="topbar-right"><span id="connection" class="connection">Đang kết nối…</span><span class="top-avatar">GV</span></div></header>
+    <main>
+      <section class="page-heading"><div><div class="eyebrow">QUẢN LÝ ĐIỂM DANH</div><h1 id="page-title">Điểm danh</h1><p id="page-description">Chọn buổi học và bật camera.</p></div><div class="heading-date"><span data-icon="calendar"></span><div id="current-date"></div></div></section>
+      <div id="global-error" class="error-banner" hidden></div>
+      <section id="dashboard-view" hidden aria-label="Tổng quan toàn bộ lớp môn học">
+        <div class="dashboard-toolbar"><p id="dashboard-updated" role="status">Thống kê trên tất cả lớp môn học · Giờ Việt Nam</p><button class="button subtle" id="dashboard-refresh">Làm mới</button></div>
+        <div id="dashboard-error" class="error-banner" role="alert" hidden></div>
+        <div id="dashboard-content" hidden>
+          <div class="stats dashboard-stats">
+            <article class="stat"><div><span>Tổng số lớp</span><strong id="dash-classes">—</strong><p>Lớp đang quản lý</p></div><span class="stat-icon gray" data-icon="grid"></span></article>
+            <article class="stat"><div><span>Lượt ghi danh</span><strong id="dash-students">—</strong><p>Đã đăng ký</p></div><span class="stat-icon gray" data-icon="users"></span></article>
+            <article class="stat"><div><span>Có mặt hôm nay</span><strong id="dash-present">—</strong><div class="dashboard-meter"><p id="dash-rate"></p><progress id="dash-present-progress" max="100" value="0" aria-label="Tỷ lệ có mặt hôm nay"></progress></div></div><span class="stat-icon green" data-icon="check"></span></article>
+            <article class="stat"><div><span>Chưa điểm danh</span><strong id="dash-pending">—</strong><div class="dashboard-meter pending-meter"><p id="dash-pending-rate"></p><progress id="dash-pending-progress" max="100" value="0" aria-label="Tỷ lệ chưa điểm danh"></progress></div></div><span class="stat-icon amber" data-icon="clock"></span></article>
+          </div>
+          <div class="dashboard-columns">
+            <section class="panel"><div class="panel-heading"><div><h2>Điểm danh 7 ngày</h2><p>Số sinh viên có mặt theo ngày</p></div></div><div id="dashboard-chart" class="dashboard-chart" aria-label="Biểu đồ điểm danh 7 ngày"></div><p class="dashboard-note">Ngày chưa có điểm danh được hiển thị là 0. Hệ thống chưa có lịch học để xác định ngày nghỉ.</p></section>
+            <section class="panel"><div class="panel-heading"><div><h2>Điểm danh gần đây</h2><p>Theo giờ có mặt đầu tiên hôm nay</p></div></div><div id="dashboard-recent" class="dashboard-recent"></div></section>
+          </div>
+          <section class="panel"><div class="panel-heading"><div><h2>Tình hình từng lớp</h2><p>Chưa điểm danh không đồng nghĩa với vắng học.</p></div></div><div class="table-scroll"><table><thead><tr><th>LỚP MÔN HỌC</th><th>GIẢNG VIÊN</th><th>SĨ SỐ</th><th>CÓ MẶT</th><th>CHƯA ĐIỂM DANH</th><th>TỶ LỆ</th><th></th></tr></thead><tbody id="dashboard-classes"></tbody></table></div></section>
+        </div>
+      </section>
+      <section class="class-toolbar" id="class-toolbar"><div class="class-picker"><label for="class-select">LỚP ĐANG CHỌN</label><select id="class-select" aria-label="Chọn lớp môn học"><option value="">Chưa có lớp môn học</option></select></div><div id="class-info" class="class-info">Tạo lớp đầu tiên để bắt đầu</div></section>
+      <section id="session-toolbar" class="session-toolbar">
+        <div><label for="session-select">BUỔI HỌC</label><select id="session-select" aria-label="Chọn buổi học"><option value="">Đang tải…</option></select><p id="session-state" role="status"></p></div>
+        <div class="session-buttons"><button class="button subtle" id="refresh-sessions">Làm mới</button><button class="button subtle" data-admin-only id="manage-schedules">Lịch cố định</button><button class="button subtle" data-admin-only id="new-session">Tạo buổi học</button><button class="button primary" id="toggle-session" disabled>Mở điểm danh</button></div>
+      </section>
+      <section id="calendar-view" hidden>
+        <div class="panel calendar-controls">
+          <div class="calendar-navigation"><button id="calendar-prev" class="button subtle" aria-label="Trước">←</button><button id="calendar-today" class="button subtle">Hôm nay</button><button id="calendar-next" class="button subtle" aria-label="Sau">→</button></div>
+          <label>Ngày<input id="calendar-date" type="date" required></label>
+          <label>Hiển thị<select id="calendar-mode"><option value="week">Tuần</option><option value="day">Ngày</option></select></label>
+          <label data-admin-only>Giảng viên<select id="calendar-teacher"><option value="">Tất cả giảng viên</option></select></label>
+          <button id="calendar-refresh" class="button subtle">Làm mới</button>
+        </div>
+        <div class="panel calendar-controls" data-admin-only><label>Lớp môn học<select id="calendar-course"></select></label><button id="calendar-create" class="button primary">Tạo buổi học</button></div>
+        <p id="calendar-caption" role="status"></p><p id="calendar-error" class="error-banner" role="alert" hidden></p>
+        <div id="calendar-grid" class="panel calendar-scroll"></div>
+        <p class="calendar-legend">Lịch cố định: buổi dự kiến · Đang mở: có thể điểm danh trong giờ học · Trùng giờ: cần kiểm tra lịch</p>
+      </section>
+      <section id="stats" class="stats" aria-label="Thống kê điểm danh">
+        <article class="stat"><div><span>Sĩ số lớp</span><strong id="stat-total">0<small>sinh viên</small></strong><p>Tổng sinh viên</p></div><span class="stat-icon gray" data-icon="users"></span></article>
+        <article class="stat"><div><span>Đã có mặt</span><strong id="stat-present">0<small>sinh viên</small></strong><p><span class="small-dot"></span>Đã ghi nhận</p></div><span class="stat-icon green" data-icon="check"></span></article>
+        <article class="stat"><div><span>Chưa điểm danh</span><strong id="stat-pending">0<small>sinh viên</small></strong><p>Chưa ghi nhận</p></div><span class="stat-icon amber" data-icon="clock"></span></article>
+        <article class="stat"><div><span>Tỷ lệ có mặt</span><strong id="stat-rate">0<small>%</small></strong><div class="progress"><span id="progress-bar"></span></div></div><span class="stat-icon gray" data-icon="chart"></span></article>
+      </section>
+      <div id="attendance-view" class="view">
+        <div class="attendance-layout">
+          <section class="panel camera-panel"><div class="panel-heading"><div><h2>Điểm danh khuôn mặt</h2><p>Một người trong oval mỗi lần chụp.</p></div><span class="pill neutral">AI nhận diện</span></div>
+            <div class="camera-stage" id="camera-stage"><video id="camera" autoplay muted playsinline hidden></video><div class="camera-empty" id="camera-empty"><div class="scan-art"><span data-icon="face"></span><i></i><i></i><i></i><i></i></div><h3>Camera chưa bật</h3><p>Bật camera để bắt đầu.</p></div><span class="camera-label"><span></span><span id="camera-status">CAMERA CHƯA BẬT</span></span><div class="camera-corners" hidden id="camera-corners"></div></div>
+            <div class="camera-actions"><button class="button primary" id="camera-toggle"><span data-icon="camera"></span>Bật camera</button><button class="button primary" id="capture" hidden><span data-icon="scan"></span>Chụp & điểm danh</button></div>
+            <div id="recognition-result" class="recognition-result" aria-live="polite"><span data-icon="shield"></span><span>Ảnh điểm danh chỉ dùng để nhận diện, không lưu lại.</span></div>
+          </section>
+          <aside class="panel session-panel"><div class="panel-heading"><div><h2>Buổi học đang chọn</h2><p id="session-date"></p></div><span class="live-dot"></span></div><div class="session-summary"><span class="session-tag">LỚP MÔN HỌC</span><h3 id="session-class">Chưa chọn lớp</h3><p id="session-subject">Tạo lớp để bắt đầu điểm danh</p></div><div class="section-label">VỪA ĐIỂM DANH <span id="recent-count">0</span></div><div id="recent-list" class="recent-list"></div></aside>
+        </div>
+      </div>
+      <section id="classes-view" class="view" hidden><div class="section-heading"><div><h2>Tất cả lớp môn học</h2><p>Danh sách lớp đang quản lý.</p></div><button class="button subtle" data-admin-only id="new-class"><span data-icon="plus"></span>Tạo lớp</button></div><div id="class-cards" class="class-cards"></div></section>
+      <section class="panel roster-panel" id="roster-panel"><div class="panel-heading roster-heading"><div><h2 id="roster-title">Danh sách điểm danh <span id="roster-count" class="count-badge">0</span></h2><p id="roster-subtitle">Kết quả của lớp đang chọn.</p></div><div class="roster-actions"><button class="button subtle" id="bulk-open" hidden>Nhập ZIP / CSV</button><button class="button subtle" id="enroll-existing" hidden>Ghi danh có sẵn</button><button class="button primary" id="new-student" hidden><span data-icon="plus"></span>Thêm sinh viên</button><input type="date" id="history-date" aria-label="Ngày xem lịch sử" hidden><button class="button subtle" id="export"><span data-icon="download"></span>Xuất CSV</button></div></div><div class="table-toolbar"><div class="tabs" role="group" aria-label="Lọc trạng thái"><button data-filter="all" class="selected">Tất cả</button><button data-filter="present">Có mặt</button><button data-filter="pending">Chưa điểm danh</button></div><div class="search"><span data-icon="search"></span><input id="search" type="search" placeholder="Tìm tên hoặc mã sinh viên…" aria-label="Tìm sinh viên"></div></div><div class="table-scroll"><table><thead><tr><th>SINH VIÊN</th><th>MÃ SINH VIÊN</th><th>TRẠNG THÁI</th><th>GIỜ ĐIỂM DANH</th><th>PHƯƠNG THỨC</th><th></th></tr></thead><tbody id="roster-body"></tbody></table></div><div class="table-footer"><span id="table-summary">Chưa có sinh viên</span><span>Thời gian Việt Nam · GMT+7</span></div></section>
+      <footer class="page-footer"><span>Lớp môn học SamSung</span><span>HUCE</span></footer>
+    </main>
+  </div>
+  <dialog id="session-dialog"><form id="session-form"><div class="dialog-heading"><div><span class="eyebrow">BUỔI HỌC</span><h2>Tạo buổi học</h2></div><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><p id="session-form-class" class="dialog-description"></p><label>Tên buổi / tiết học<input name="name" maxlength="80" placeholder="Ví dụ: Buổi sáng · Tiết 1–3" required></label><label>Ngày học<input id="new-session-day" name="day" type="date" required></label><label>Giờ bắt đầu (Việt Nam)<input name="starts_at" type="time" value="07:00" required></label><label>Giờ kết thúc (Việt Nam)<input name="ends_at" type="time" value="17:00" required></label><fieldset class="repeat-days"><legend>Lặp lại hàng tuần</legend><label><input type="checkbox" name="weekdays" value="0">T2</label><label><input type="checkbox" name="weekdays" value="1">T3</label><label><input type="checkbox" name="weekdays" value="2">T4</label><label><input type="checkbox" name="weekdays" value="3">T5</label><label><input type="checkbox" name="weekdays" value="4">T6</label><label><input type="checkbox" name="weekdays" value="5">T7</label><label><input type="checkbox" name="weekdays" value="6">CN</label></fieldset><label>Đến ngày (tùy chọn)<input name="ends_on" type="date"></label><p class="dialog-description">Không chọn thứ: tạo một buổi. Chọn thứ: lưu lịch cố định từ ngày đã chọn. Buổi hôm nay tự tạo khi mở lớp hoặc bấm Làm mới. Buổi mới ở trạng thái đóng. Chọn buổi và bấm Mở điểm danh; chỉ ghi nhận trong đúng ngày và khung giờ đã đặt.</p><p class="form-error" role="alert"></p><div class="dialog-actions"><button type="button" class="button subtle close-dialog">Hủy</button><button class="button primary" type="submit">Tạo buổi</button></div></form></dialog>
+  <dialog id="class-dialog"><form id="class-form"><div class="dialog-heading"><div><span class="eyebrow">LỚP MÔN HỌC</span><h2 id="class-dialog-title">Tạo lớp môn học</h2></div><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><label>Tên môn học <input name="name" placeholder="Ví dụ: Giải tích 2" maxlength="60" required></label><label>Mã lớp môn học<input name="course_code" maxlength="40" placeholder="Ví dụ: GT2-01" required></label><label>Phòng học<input name="room" maxlength="60" placeholder="Ví dụ: 201-H1" required></label><label>Môn học / mô tả <input name="subject" placeholder="Ví dụ: Tin học · Năm học 2026–2027" maxlength="120"></label><label>Giảng viên phụ trách<select name="owner_id" id="class-owner" required></select></label><p class="form-error" role="alert"></p><div class="dialog-actions"><button type="button" class="button subtle close-dialog">Hủy</button><button type="submit" class="button primary">Tạo lớp môn học</button></div></form></dialog>
+  <dialog id="student-dialog"><form id="student-form"><div class="dialog-heading"><div><span class="eyebrow">SINH VIÊN</span><h2>Thêm sinh viên</h2></div><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><p id="student-class-label" class="dialog-description"></p><label>Họ và tên <input name="name" placeholder="Ví dụ: Nguyễn Minh Anh" maxlength="100" required></label><label>Mã sinh viên <input name="code" placeholder="Ví dụ: 000123" pattern="[0-9]{1,6}" maxlength="6" inputmode="numeric" title="MSSV gồm 6 chữ số; mã ngắn được thêm số 0 ở đầu" required></label><div class="enroll-tabs" role="group" aria-label="Cách đăng ký khuôn mặt"><button type="button" class="button primary" id="enroll-mode-camera" aria-pressed="true"><span data-icon="camera"></span>Chụp trực tiếp</button><button type="button" class="button subtle" id="enroll-mode-upload" aria-pressed="false"><span data-icon="upload"></span>Tải ảnh có sẵn</button></div>
+<section id="enroll-camera-section"><div class="enroll-stage"><video id="enroll-video" autoplay muted playsinline hidden></video><div id="enroll-guide" class="camera-corners" hidden aria-hidden="true"></div><img id="enroll-preview" alt="Ảnh khuôn mặt vừa chụp để đăng ký" hidden><p id="enroll-placeholder">Bật camera và đặt mặt trong oval.</p></div><div class="enroll-actions"><button type="button" class="button subtle" id="enroll-camera-start"><span data-icon="camera"></span>Bật camera</button><button type="button" class="button primary" id="enroll-capture" hidden>Chụp ảnh</button><button type="button" class="button subtle" id="enroll-retake" hidden>Chụp lại</button></div><p id="enroll-status" class="dialog-description" role="status">Đặt một khuôn mặt trong oval. Người ngoài oval được bỏ qua.</p></section>
+<label class="upload-box" id="enroll-upload-section" hidden><span data-icon="upload"></span><strong>Chọn ảnh khuôn mặt</strong><span>1–5 ảnh, mỗi ảnh tối đa 10 MB.<br>Mỗi ảnh chỉ có một người, rõ mặt.</span><input name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple></label><p class="privacy-note">Chỉ lưu đặc trưng nhận diện trong máy, không lưu ảnh gốc. Sử dụng ảnh đã được phép dùng cho điểm danh.</p><p class="form-error" role="alert"></p><div class="dialog-actions"><button type="button" class="button subtle close-dialog">Hủy</button><button type="submit" class="button primary">Lưu sinh viên</button></div></form></dialog>
+  <dialog id="schedules-dialog"><form><div class="dialog-heading"><h2>Lịch cố định</h2><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><p class="form-error" role="alert"></p><div id="schedules-list"></div><p class="dialog-description">Dừng lịch không xóa buổi và kết quả đã lưu. Muốn đổi giờ, dừng lịch rồi tạo lịch mới với tên khác.</p></form></dialog>
+  <dialog id="enrollment-dialog"><form id="enrollment-form"><div class="dialog-heading"><h2>Ghi danh sinh viên</h2><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><p id="enrollment-course"></p><label>Tìm sinh viên<input id="directory-search" type="search" placeholder="Nhập tên hoặc mã sinh viên"></label><label>Sinh viên đã có hồ sơ<select id="directory-student" name="student_id" required></select></label><p>Chỉ thêm vào lớp môn học đang chọn. Không cần chụp lại khuôn mặt.</p><p class="form-error" role="alert"></p><div class="dialog-actions"><button class="button primary" type="submit">Ghi danh</button></div></form></dialog>
+  <dialog id="bulk-dialog" style="width:min(1000px,95vw)"><div class="dialog-heading"><h2>Nhập sinh viên hàng loạt</h2><button type="button" class="icon-button close-dialog">×</button></div><p>ZIP gồm danh_sach.csv (UTF-8) và ảnh. Tối đa 200 dòng, ZIP 50 MB. Lớp, giảng viên, thứ, giờ và phòng phải khớp lịch cố định.</p><p><a href="/static/import-template.csv" download>Tải CSV mẫu</a> · Thứ: 2–7 hoặc CN. Sinh viên đã có hồ sơ có thể để trống ảnh.</p><input id="bulk-file" type="file" accept=".zip"><button id="bulk-preview" class="button subtle">Xem trước</button><p id="bulk-status" role="status"></p><progress id="bulk-progress" value="0" max="1" style="width:100%"></progress><div class="table-scroll" style="max-height:400px"><table><thead><tr><th>Dòng</th><th>Sinh viên</th><th>Lớp / Giảng viên</th><th>Ca / Phòng</th><th>Kết quả</th></tr></thead><tbody id="bulk-rows"></tbody></table></div><p>Chỉ nhập các dòng hợp lệ. Ảnh mới được kiểm tra khuôn mặt khi xác nhận. Giữ trang mở khi xử lý; có thể tiếp tục nếu kết nối bị lỗi.</p><button id="bulk-confirm" class="button primary" disabled>Xác nhận nhập</button></dialog>
+  <div id="toast" role="status" hidden></div><script src="/static/app.js?v=mssv6-schedules1" defer></script>
+</body>
+</html>

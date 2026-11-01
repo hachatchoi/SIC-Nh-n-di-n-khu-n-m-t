@@ -1,0 +1,32 @@
+BỘ MẪU NHẬP SINH VIÊN
+
+12 tên sinh viên minh họa, MSSV 000101–000112. Chưa nhập vào database.
+Thay tên, MSSV bằng thông tin thật trước khi sử dụng. Không dùng ảnh của
+một người cho nhiều hồ sơ. Ảnh cần rõ, chỉ có một khuôn mặt và được phép sử dụng.
+
+1. Thay thông tin trong danh_sach.csv, giữ nguyên tên và thứ tự 9 cột.
+   Khi mở bằng Excel: dùng Data > From Text/CSV, chọn UTF-8 và đặt cột
+   ma_sinh_vien là Text để giữ số 0 đầu. Lưu CSV UTF-8, phân cách dấu phẩy.
+2. Đặt ảnh thật vào thư mục anh, tên 000101.jpg đến 000112.jpg tương ứng.
+   Nếu ảnh là PNG, sửa cả tên file và cột anh thành anh/000101.png tương ứng.
+   Thư mục anh hiện trống; bộ mẫu chưa thể nhập thành công khi thiếu ảnh.
+3. Chọn danh_sach.csv cùng thư mục anh và nén ZIP. CSV phải nằm ngay gốc ZIP,
+   không nằm trong một thư mục bao ngoài.
+4. Đăng nhập admin > Sinh viên > Nhập ZIP / CSV > Xem trước.
+   Kiểm tra các dòng, sửa lỗi, sau đó xác nhận nhập. Giữ trang mở đến khi xong.
+
+Các lớp đang tồn tại tại thời điểm tạo mẫu:
+- 000101–000104: GT2-01, Giải tích 2, Lương Xuân Hiếu, 201-H1.
+- 000105–000108: PY-01, Lập trình Python, Dương Kim Thanh, 301-H1.
+- 000109–000112: CSDL-01, Cơ sở dữ liệu, Vũ Thành Vinh, 401-H1.
+Ca mẫu: thứ 3, 19:00–21:00; lịch hiện có lặp thứ 3 và thứ 5.
+thu=2 là thứ Hai, 3 là thứ Ba, ..., 7 là thứ Bảy, CN là Chủ nhật.
+Chỉ một dòng mỗi sinh viên/lớp; không thêm dòng trùng cho thứ 5.
+
+Chức năng nhập hiện chỉ ghi danh vào lớp và lịch đã có; không tự tạo lớp,
+giảng viên hoặc ca/phòng mới. Nếu đổi lớp, tài khoản, phòng hay ca, các thông tin
+phải khớp dữ liệu hiện có trên web.
+Sinh viên đã có cùng MSSV và họ tên, có khuôn mặt: dùng lại hồ sơ, không cần ảnh mới.
+Sinh viên đã thuộc lớp: được bỏ qua khi xác nhận nhập.
+Sinh viên mới: ảnh sẽ được kiểm tra khuôn mặt khi xác nhận, chưa phải ở bước xem trước.
+Mỗi ZIP tối đa 200 dòng, 50 MB nén; mỗi ảnh tối đa 10 MB.
