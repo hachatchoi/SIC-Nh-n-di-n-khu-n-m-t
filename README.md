@@ -27,7 +27,7 @@ Camera không tự quét liên tục. “Chưa điểm danh” không tự độ
 
 ## 2. Khởi động trên Windows
 
-Thực hiện trong PowerShell. Code sử dụng cú pháp Python 3.10 trở lên; việc cài thư viện AI còn phụ thuộc phiên bản Python và môi trường. Node.js chỉ cần cho kiểm tra JavaScript.
+Thực hiện trong PowerShell. Môi trường được cố định theo Python 3.11; Node.js 22 chỉ cần cho kiểm tra JavaScript. GitHub Actions tự chạy backend, evaluation và frontend tests khi push lên `main`, tạo pull request hoặc chạy thủ công.
 
 Nếu đã có `.venv` và thư viện:
 
@@ -53,7 +53,7 @@ Thay đường dẫn nếu lưu dự án ở nơi khác. `start.ps1` chuyển th
 
 Nhấn `Ctrl+C` ở terminal để dừng server. Nếu server đã chạy thì chỉ cần mở trang.
 
-Model được cấu hình lưu dưới `.insightface` ở gốc dự án. Khi chưa có model, InsightFace có thể tải model lúc khởi tạo; bước này cần mạng. Code chọn `CPUExecutionProvider`, không yêu cầu GPU. `requirements.txt` chưa ghim phiên bản nên môi trường cài mới có thể khác môi trường hiện tại.
+Model được cấu hình lưu dưới `.insightface` ở gốc dự án. Khi chưa có model, InsightFace tải model khi lần đầu cần nhận diện; bước này cần mạng. Code chọn `CPUExecutionProvider`, không yêu cầu GPU. Các thư viện backend được ghim phiên bản trong `backend/requirements.txt`; CI mock việc khởi tạo model và không tải model khuôn mặt.
 
 ## 3. Sử dụng lần đầu
 
@@ -128,13 +128,13 @@ Bỏ `day` thì dùng ngày hiện tại. Lỗi nghiệp vụ thường trả 40
 Từ thư mục gốc dự án:
 
 ```powershell
-Push-Location .\backend
-..\.venv\Scripts\python.exe -m unittest test_classroom -v
-Pop-Location
+ $env:PYTHONPATH = ".;backend;evaluation"
+ .\.venv\Scripts\python.exe -m unittest discover -s backend -p "test_*.py" -v
+ .\.venv\Scripts\python.exe -m unittest discover -s evaluation -p "test_*.py" -v
 node --test .\tests\enrollment.test.cjs .\tests\attendance-guide.test.cjs
 ```
 
-Có 10 bài backend và 7 bài frontend. Backend dùng database tạm và nhiều bước dùng vector giả; frontend dùng DOM/camera giả lập. Chúng kiểm tra logic, không đo độ chính xác trên người thật. Backend vẫn import model lúc nạp module nên cần môi trường AI đầy đủ.
+Các bài backend/evaluation dùng database tạm và vector giả; frontend dùng DOM/camera giả lập. Chúng kiểm tra logic, không đo độ chính xác trên người thật. Unit test không cần tải model InsightFace.
 
 ## 9. Lỗi thường gặp
 
