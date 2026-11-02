@@ -1,0 +1,18 @@
+DU LIEU MAU: 12 SINH VIEN, 3 MON HOC
+
+Hai file CSV nay la du lieu minh hoa, khong phai du lieu that va chua duoc nap vao database.
+
+QUAN TRONG: Database EC2 hien chua co lop mon hoc. Hay tao 3 lop va lich co dinh truoc,
+khop ma lop, tai khoan giang vien, thu, gio va phong trong lich_hoc_mau.csv. App khong
+nhap lop/lich tu CSV; file lich_hoc_mau.csv chi la bang tham khao de tao bang giao dien.
+
+De nhap sinh vien:
+1. Doi ma lop/giang vien/thu/gio/phong trong sinh_vien_mau.csv cho trung lich da tao.
+2. Them anh that cua tung sinh vien vao thu muc anh, dung ten trong cot anh. Moi anh
+   can co mot khuon mat ro rang va duoc phep su dung. Khong tai anh mau cua nguoi that
+   tu internet; khong dung cung mot anh cho nhieu sinh vien.
+3. Nen sinh_vien_mau.csv o goc ZIP va thu muc anh cung cap duong dan anh/....jpg.
+4. Dang nhap bang admin > Sinh vien > Nhap ZIP / CSV > Xem truoc. Kiem tra va xac nhan.
+
+Thu 3 = Thu Ba. CSV danh sach co dung 9 cot theo mau cua app. Ma sinh vien 260001–260012
+la ma gia; thay bang ma duoc cap truoc khi nhap. MSSV chi duoc gom 1–6 chu so. Dung UTF-8.
