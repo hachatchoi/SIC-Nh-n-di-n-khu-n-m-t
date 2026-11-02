@@ -21,6 +21,22 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Verify required deployment secrets
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          EC2_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}
+        run: |
+          missing=0
+          for secret_name in EC2_HOST EC2_USER EC2_SSH_PRIVATE_KEY EC2_KNOWN_HOSTS; do
+            if [[ -z "${!secret_name:-}" ]]; then
+              echo "::error::Required Actions secret is missing or empty: ${secret_name}"
+              missing=1
+            fi
+          done
+          exit "$missing"
+
       - name: Configure SSH
         env:
           EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
