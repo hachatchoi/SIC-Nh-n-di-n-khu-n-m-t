@@ -1,5 +1,6 @@
 """Lazy, shared InsightFace model used by detection and recognition."""
 from functools import lru_cache
+import os
 from pathlib import Path
 
 
@@ -9,7 +10,7 @@ def get_face_app():
     from insightface.app import FaceAnalysis
 
     face_app = FaceAnalysis(
-        root=str(Path(__file__).resolve().parents[1] / ".insightface"),
+        root=os.getenv("INSIGHTFACE_HOME", str(Path(__file__).resolve().parents[1] / ".insightface")),
         providers=["CPUExecutionProvider"],
     )
     face_app.prepare(ctx_id=-1, det_size=(640, 640))
