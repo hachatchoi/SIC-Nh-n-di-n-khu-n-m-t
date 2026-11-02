@@ -1,0 +1,5 @@
+services:
+  sic:
+    image: sic-attendance:ec2
+    environment:
+      AUTH_COOKIE_SECURE: "1"

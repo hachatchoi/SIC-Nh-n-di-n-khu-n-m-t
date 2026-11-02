@@ -1,6 +1,7 @@
 """Local administrator CLI; passwords are entered privately, never command arguments."""
 import argparse
 import getpass
+import os
 import re
 import sqlite3
 from pathlib import Path
@@ -23,7 +24,7 @@ def main():
     reset.add_argument('--username', required=True)
     sub.add_parser('list')
     args = parser.parse_args()
-    path = Path(__file__).resolve().parent / 'classroom.db'
+    path = Path(os.getenv('SIC_DATABASE_PATH', Path(__file__).resolve().parent / 'classroom.db'))
     if not path.exists():
         parser.error('Hãy khởi động server một lần để tạo database.')
     migrate(path)

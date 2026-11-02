@@ -21,6 +21,11 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     steps:
+      - name: Check out production source
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
       - name: Verify required deployment secrets
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
@@ -48,7 +53,22 @@ jobs:
           printf '%s\n' "$EC2_KNOWN_HOSTS" > ~/.ssh/known_hosts
           chmod 600 ~/.ssh/known_hosts
 
-      - name: Update application and restart service
+      - name: Build Docker image on GitHub runner
+        run: docker build --tag sic-attendance:ec2 .
+
+      - name: Stream Docker image to EC2
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          set -o pipefail
+          docker save sic-attendance:ec2 | gzip -1 | ssh \
+            -i ~/.ssh/ec2_key \
+            -o BatchMode=yes \
+            -o ConnectTimeout=20 \
+            "$EC2_USER@$EC2_HOST" 'gzip -dc | sudo docker load'
+
+      - name: Migrate existing SQLite data and start Docker service
         env:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
@@ -63,14 +83,41 @@ jobs:
             git checkout -b main origin/main
           fi
           git pull --ff-only origin main
-          .venv/bin/python -m pip install -r backend/requirements.txt
-          sudo systemctl restart sic
+
+          sudo systemctl enable --now docker
+          sudo docker volume create sic_sic-data >/dev/null
+          sudo docker volume create sic_sic-models >/dev/null
+
+          if ! sudo docker run --rm --user 0 -v sic_sic-data:/data sic-attendance:ec2 \
+              sh -c 'test -s /data/classroom.db'; then
+            sudo systemctl stop sic
+            sudo docker run --rm --user 0 \
+              -v sic_sic-data:/data \
+              -v /opt/sic/backend/classroom.db:/source/classroom.db:ro \
+              sic-attendance:ec2 \
+              sh -c 'cp /source/classroom.db /data/classroom.db && chown -R 10001:10001 /data'
+          fi
+
+          if [ -d /opt/sic/.insightface ] && \
+             ! sudo docker run --rm --user 0 -v sic_sic-models:/models sic-attendance:ec2 \
+               sh -c 'test -n "$(ls -A /models)"'; then
+            sudo docker run --rm --user 0 \
+              -v sic_sic-models:/models \
+              -v /opt/sic/.insightface:/source:ro \
+              sic-attendance:ec2 \
+              sh -c 'cp -a /source/. /models/ && chown -R 10001:10001 /models'
+          fi
+
+          sudo systemctl disable --now sic
+          sudo docker compose -p sic -f compose.yaml -f compose.ec2.yaml up -d --no-build
           for attempt in $(seq 1 30); do
             if curl --fail --silent http://127.0.0.1:8000/health; then
               exit 0
             fi
             sleep 2
           done
-          sudo journalctl -u sic -n 80 --no-pager
+          sudo docker logs --tail 80 sic-attendance
+          sudo docker compose -p sic -f compose.yaml -f compose.ec2.yaml down
+          sudo systemctl enable --now sic
           exit 1
           REMOTE
