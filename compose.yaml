@@ -14,7 +14,7 @@ services:
     pids_limit: 128
     stop_grace_period: 30s
     ports:
-      - "${SIC_PORT:-8000}:8000"
+      - "127.0.0.1:${SIC_PORT:-8000}:8000"
     environment:
       SIC_DATABASE_PATH: /data/classroom.db
       INSIGHTFACE_HOME: /models

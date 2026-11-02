@@ -57,7 +57,7 @@ Model được cấu hình lưu dưới `.insightface` ở gốc dự án. Khi c
 
 ### Deploy lên AWS EC2 qua GitHub Actions
 
-Workflow CD nằm ở `.github/workflows/cd-aws.yml`. Sau khi workflow `CI` chạy thành công trên `main`, CD kết nối EC2 qua SSH, cập nhật `/opt/sic` từ `origin/main`, cài requirements, khởi động lại `sic.service` và xác nhận `/health`. Có thể chạy thủ công từ tab Actions khi chọn nhánh `main`.
+Workflow CD nằm ở `.github/workflows/cd-aws.yml`. Sau khi workflow `CI` chạy thành công trên `main`, CD build Docker image trên GitHub runner, truyền image qua SSH tới EC2, cập nhật `/opt/sic` và chạy Compose với `compose.ec2.yaml`. Ở lần chuyển đầu, CD sao chép `backend/classroom.db` và model cache nếu có vào Docker volumes, sau đó tắt `sic.service` và khởi động container. Các lần deploy sau cập nhật container mà giữ nguyên volumes. Image không cần registry riêng và không build trên EC2. Có thể chạy thủ công từ tab Actions khi chọn nhánh `main`.
 
 Trước khi bật deploy, cấu hình các Actions secrets trong GitHub repository → **Settings → Secrets and variables → Actions**:
 
@@ -68,7 +68,7 @@ Trước khi bật deploy, cấu hình các Actions secrets trong GitHub reposit
 | `EC2_SSH_PRIVATE_KEY` | Toàn bộ nội dung khóa riêng PEM; không commit vào repository |
 | `EC2_KNOWN_HOSTS` | Dòng host key đã xác minh của EC2 để SSH kiểm tra danh tính máy chủ |
 
-EC2 cần cho phép SSH từ runner GitHub Actions. Nếu giới hạn SSH theo IP, dùng AWS Systems Manager/OIDC hoặc self-hosted runner thay vì mở SSH toàn Internet. Service `/opt/sic` cần có `.venv`, Nginx và systemd service `sic` như hướng dẫn triển khai; database và `.insightface` phải nằm ngoài các file bị thay thế khi cập nhật.
+EC2 cần Docker Engine, Docker Compose v2, Nginx, systemd service `sic` (dùng làm phương án quay lui), và cho phép SSH từ GitHub runner. Compose chỉ bind cổng 8000 trên loopback; Nginx tiếp tục nhận HTTPS và proxy tới ứng dụng. Sau lần chuyển đầu, thao tác tài khoản từ terminal nên chạy trong container để dùng đúng database volume, ví dụ `sudo docker compose -p sic -f compose.yaml -f compose.ec2.yaml exec sic python manage_teachers.py list`.
 
 ### Chạy bằng Docker Compose
 
@@ -81,9 +81,9 @@ docker compose up -d --build
 docker compose ps
 ```
 
-Mở `http://localhost:8000`. Xem nhật ký bằng `docker compose logs -f sic`; dừng bằng `docker compose down`. Lệnh `down` giữ nguyên dữ liệu; **không** thêm `-v` nếu muốn giữ database và model. Muốn đổi cổng máy host, tạo file `.env` với `SIC_PORT=8080`, rồi mở `http://localhost:8080`.
+Mở `http://localhost:8000`. Xem nhật ký bằng `docker compose logs -f sic`; dừng bằng `docker compose down`. Lệnh `down` giữ nguyên dữ liệu; **không** thêm `-v` nếu muốn giữ database và model. Muốn đổi cổng máy host, tạo file `.env` với `SIC_PORT=8080`, rồi mở `http://localhost:8080`. Compose chỉ bind cổng trên loopback của máy host.
 
-Khi chạy container sau Nginx/HTTPS, đặt `AUTH_COOKIE_SECURE=1` trong `.env`; Nginx chuyển tiếp `X-Forwarded-Proto` để phiên đăng nhập dùng cookie an toàn. Container lắng nghe cổng 8000 nội bộ và Compose chỉ công khai cổng máy host đã chọn. Trên EC2 hiện tại, service systemd `sic` đang dùng cổng 8000; cần dừng service đó trước khi bind cùng cổng cho Docker. `t3.micro` có ít bộ nhớ cho InsightFace; nên nâng RAM trước khi bật nhận diện trong Docker để tránh hệ điều hành/container bị thiếu bộ nhớ.
+Khi chạy container sau Nginx/HTTPS, đặt `AUTH_COOKIE_SECURE=1`; cấu hình EC2 override đã bật tùy chọn này. `t3.micro` chỉ có 1 GiB RAM; CD build image trên GitHub runner để tránh build tốn RAM trên instance. Nhận diện InsightFace vẫn cần RAM khi chạy; theo dõi bộ nhớ EC2 sau khi bật nhận diện.
 
 ## 3. Sử dụng lần đầu
 
