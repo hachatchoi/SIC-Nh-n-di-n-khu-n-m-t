@@ -70,6 +70,21 @@ Trước khi bật deploy, cấu hình các Actions secrets trong GitHub reposit
 
 EC2 cần cho phép SSH từ runner GitHub Actions. Nếu giới hạn SSH theo IP, dùng AWS Systems Manager/OIDC hoặc self-hosted runner thay vì mở SSH toàn Internet. Service `/opt/sic` cần có `.venv`, Nginx và systemd service `sic` như hướng dẫn triển khai; database và `.insightface` phải nằm ngoài các file bị thay thế khi cập nhật.
 
+### Chạy bằng Docker Compose
+
+Docker đóng gói FastAPI, giao diện và các thư viện nhận diện trong image nhiều tầng; compiler chỉ có trong giai đoạn build. Ứng dụng chạy bằng user không phải root, filesystem gốc chỉ đọc, và quyền Linux dư thừa được gỡ bỏ. SQLite và model InsightFace được giữ ở hai Docker volume riêng để không mất dữ liệu khi cập nhật hoặc tạo lại container. Lần đầu nhận diện có thể tải model xuống và cần kết nối mạng.
+
+Yêu cầu Docker Engine với Docker Compose v2 (hoặc Docker Desktop trên Windows). Từ thư mục gốc dự án:
+
+```sh
+docker compose up -d --build
+docker compose ps
+```
+
+Mở `http://localhost:8000`. Xem nhật ký bằng `docker compose logs -f sic`; dừng bằng `docker compose down`. Lệnh `down` giữ nguyên dữ liệu; **không** thêm `-v` nếu muốn giữ database và model. Muốn đổi cổng máy host, tạo file `.env` với `SIC_PORT=8080`, rồi mở `http://localhost:8080`.
+
+Khi chạy container sau Nginx/HTTPS, đặt `AUTH_COOKIE_SECURE=1` trong `.env`; Nginx chuyển tiếp `X-Forwarded-Proto` để phiên đăng nhập dùng cookie an toàn. Container lắng nghe cổng 8000 nội bộ và Compose chỉ công khai cổng máy host đã chọn. Trên EC2 hiện tại, service systemd `sic` đang dùng cổng 8000; cần dừng service đó trước khi bind cùng cổng cho Docker. `t3.micro` có ít bộ nhớ cho InsightFace; nên nâng RAM trước khi bật nhận diện trong Docker để tránh hệ điều hành/container bị thiếu bộ nhớ.
+
 ## 3. Sử dụng lần đầu
 
 1. Vào **Lớp học**, tạo lớp với môn học và giáo viên.

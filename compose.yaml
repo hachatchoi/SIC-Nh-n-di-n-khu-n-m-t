@@ -1,0 +1,30 @@
+services:
+  sic:
+    build:
+      context: .
+    image: sic-attendance:local
+    container_name: sic-attendance
+    restart: unless-stopped
+    init: true
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    pids_limit: 128
+    stop_grace_period: 30s
+    ports:
+      - "${SIC_PORT:-8000}:8000"
+    environment:
+      SIC_DATABASE_PATH: /data/classroom.db
+      INSIGHTFACE_HOME: /models
+      AUTH_COOKIE_SECURE: "${AUTH_COOKIE_SECURE:-0}"
+    volumes:
+      - sic-data:/data
+      - sic-models:/models
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=64m,mode=1777
+
+volumes:
+  sic-data:
+  sic-models:

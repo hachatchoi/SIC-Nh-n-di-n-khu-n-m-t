@@ -2,6 +2,7 @@
 import csv
 import io
 import json
+import os
 import re
 import sqlite3
 import threading
@@ -23,7 +24,7 @@ from course_migration import migrate_courses
 from student_codes import normalize_student_code
 
 router = APIRouter(prefix="/api", dependencies=[Depends(require_teacher)])
-DB_PATH = Path(__file__).resolve().parent / "classroom.db"
+DB_PATH = Path(os.getenv("SIC_DATABASE_PATH", Path(__file__).resolve().parent / "classroom.db"))
 AI_LOCK = threading.Lock()
 VN_TIME = timezone(timedelta(hours=7))
 
