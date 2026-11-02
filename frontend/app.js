@@ -31,7 +31,17 @@ async function api(path, options = {}) {
   catch { throw new Error('Không kết nối được máy chủ. Hãy kiểm tra backend đang chạy và tải lại trang.'); }
   const data = await response.json().catch(() => ({}));
   if (response.status === 401 && !path.startsWith('/auth/')) showLogin();
-  if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : 'Dữ liệu chưa hợp lệ hoặc máy chủ gặp lỗi. Vui lòng thử lại.');
+  if (!response.ok) {
+    const detail = typeof data.detail === 'string'
+      ? data.detail
+      : Array.isArray(data.detail)
+        ? data.detail.map(item => {
+          const field = Array.isArray(item.loc) ? item.loc.filter(part => !['body', 'query', 'path'].includes(part)).join('.') : '';
+          return [field, item.msg].filter(Boolean).join(': ');
+        }).filter(Boolean).join(' · ')
+        : '';
+    throw new Error(detail || 'Máy chủ từ chối dữ liệu nhưng không gửi thông tin chi tiết. Hãy xem nhật ký backend.');
+  }
   return data;
 }
 function currentClass() { return state.classes.find(c => c.id === state.classId); }
