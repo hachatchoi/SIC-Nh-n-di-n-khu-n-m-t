@@ -1,30 +1,60 @@
-name: CD preparation (AWS)
+name: CD to AWS EC2
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
 jobs:
-  package:
-    name: Package release for future AWS deployment
+  deploy:
+    name: Deploy to EC2 after CI passes
+    if: (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
+    environment: production
     steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - name: Create release bundle
-        shell: bash
+      - name: Configure SSH
+        env:
+          EC2_SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_PRIVATE_KEY }}
+          EC2_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}
         run: |
-          mkdir -p dist
-          git archive --format=tar.gz --prefix=sic/ "${GITHUB_SHA}" > "dist/sic-${GITHUB_SHA::12}.tar.gz"
-      - uses: actions/upload-artifact@v4
-        with:
-          name: sic-release-${{ github.sha }}
-          path: dist/*.tar.gz
-          if-no-files-found: error
-          retention-days: 14
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$EC2_SSH_PRIVATE_KEY" > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/ec2_key
+          printf '%s\n' "$EC2_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Update application and restart service
+        env:
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+        run: |
+          ssh -i ~/.ssh/ec2_key -o BatchMode=yes "$EC2_USER@$EC2_HOST" 'bash -se' <<'REMOTE'
+          set -euo pipefail
+          cd /opt/sic
+          git fetch origin main
+          if git show-ref --verify --quiet refs/heads/main; then
+            git checkout main
+          else
+            git checkout -b main origin/main
+          fi
+          git pull --ff-only origin main
+          .venv/bin/python -m pip install -r backend/requirements.txt
+          sudo systemctl restart sic
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8000/health; then
+              exit 0
+            fi
+            sleep 2
+          done
+          sudo journalctl -u sic -n 80 --no-pager
+          exit 1
+          REMOTE
