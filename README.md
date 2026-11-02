@@ -55,6 +55,21 @@ Nhấn `Ctrl+C` ở terminal để dừng server. Nếu server đã chạy thì 
 
 Model được cấu hình lưu dưới `.insightface` ở gốc dự án. Khi chưa có model, InsightFace tải model khi lần đầu cần nhận diện; bước này cần mạng. Code chọn `CPUExecutionProvider`, không yêu cầu GPU. Các thư viện backend được ghim phiên bản trong `backend/requirements.txt`; CI mock việc khởi tạo model và không tải model khuôn mặt.
 
+### Deploy lên AWS EC2 qua GitHub Actions
+
+Workflow CD nằm ở `.github/workflows/cd-aws.yml`. Sau khi workflow `CI` chạy thành công trên `main`, CD kết nối EC2 qua SSH, cập nhật `/opt/sic` từ `origin/main`, cài requirements, khởi động lại `sic.service` và xác nhận `/health`. Có thể chạy thủ công từ tab Actions khi chọn nhánh `main`.
+
+Trước khi bật deploy, cấu hình các Actions secrets trong GitHub repository → **Settings → Secrets and variables → Actions**:
+
+| Secret | Giá trị |
+|---|---|
+| `EC2_HOST` | Public DNS hoặc Elastic IP của EC2 |
+| `EC2_USER` | `ubuntu` cho Ubuntu AMI |
+| `EC2_SSH_PRIVATE_KEY` | Toàn bộ nội dung khóa riêng PEM; không commit vào repository |
+| `EC2_KNOWN_HOSTS` | Dòng host key đã xác minh của EC2 để SSH kiểm tra danh tính máy chủ |
+
+EC2 cần cho phép SSH từ runner GitHub Actions. Nếu giới hạn SSH theo IP, dùng AWS Systems Manager/OIDC hoặc self-hosted runner thay vì mở SSH toàn Internet. Service `/opt/sic` cần có `.venv`, Nginx và systemd service `sic` như hướng dẫn triển khai; database và `.insightface` phải nằm ngoài các file bị thay thế khi cập nhật.
+
 ## 3. Sử dụng lần đầu
 
 1. Vào **Lớp học**, tạo lớp với môn học và giáo viên.
