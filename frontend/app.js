@@ -23,14 +23,18 @@ const escapeHTML = value => String(value ?? '').replace(/[&<>"']/g, ch => ({'&':
 const initials = name => name.trim().split(/\s+/).slice(-2).map(s => s[0]).join('').toUpperCase();
 const state = { user: null, teachers: [], classes: [], students: [], classId: null, view: 'attendance', filter: 'all', today: '', stream: null, loading: false, rosterRequest: 0, recognizing: false, sessions: [], sessionId: null, sessionKey: '' };
 let toastTimer;
+let loginRecovery = null;
 function toast(message) { $('#toast').textContent = message; $('#toast').hidden = false; clearTimeout(toastTimer); toastTimer = setTimeout(() => $('#toast').hidden = true, 4500); }
 function errorBanner(message = '') { $('#global-error').textContent = message; $('#global-error').hidden = !message; }
-async function api(path, options = {}) {
+async function api(path, options = {}, retryAfterLogin = true) {
   let response;
   try { response = await fetch('/api' + path, {...options, headers: {...options.headers, 'X-Requested-With':'attendance-web'}}); }
   catch { throw new Error('Không kết nối được máy chủ. Hãy kiểm tra backend đang chạy và tải lại trang.'); }
   const data = await response.json().catch(() => ({}));
-  if (response.status === 401 && !path.startsWith('/auth/')) showLogin();
+  if (response.status === 401 && !path.startsWith('/auth/') && retryAfterLogin) {
+    await waitForLogin();
+    return api(path, options, false);
+  }
   if (!response.ok) {
     const detail = typeof data.detail === 'string'
       ? data.detail
@@ -40,7 +44,7 @@ async function api(path, options = {}) {
           return [field, item.msg].filter(Boolean).join(': ');
         }).filter(Boolean).join(' · ')
         : '';
-    throw new Error(detail || 'Máy chủ từ chối dữ liệu nhưng không gửi thông tin chi tiết. Hãy xem nhật ký backend.');
+    throw new Error(detail || `Máy chủ trả lỗi HTTP ${response.status} nhưng không gửi thông tin chi tiết. Hãy xem nhật ký backend.`);
   }
   return data;
 }
@@ -490,12 +494,19 @@ $('#schedules-list').onclick = async event => {
 
 function showLogin() {
   stopCamera(); stopEnrollmentCamera();
-  state.rosterRequest++; dashboardRequest++;
-  state.user = null; state.teachers = []; state.classes = []; state.students = []; state.classId = null;
-  state.sessions = []; state.sessionId = null; state.sessionKey = '';
-  $$('.sidebar, .app-shell').forEach(el => el.hidden = true);
-  $$('dialog[open]').forEach(dialog => dialog.close());
-  $('#login-screen').hidden = false;
+  const login = $('#login-screen');
+  login.hidden = false;
+  if (!login.open) login.showModal();
+}
+$('#login-screen').addEventListener('cancel', event => event.preventDefault());
+function waitForLogin() {
+  if (!loginRecovery) {
+    let resolve;
+    const promise = new Promise(done => { resolve = done; });
+    loginRecovery = {promise, resolve};
+    showLogin();
+  }
+  return loginRecovery.promise;
 }
 function isAdmin() { return state.user?.role === 'admin'; }
 async function enterAccount(user) {
@@ -511,7 +522,10 @@ async function enterAccount(user) {
 }
 async function initializeLogin() {
   try { await enterAccount(await api('/auth/me')); }
-  catch { showLogin(); }
+  catch {
+    $$('.sidebar, .app-shell').forEach(el => el.hidden = true);
+    showLogin();
+  }
 }
 $('#login-form').addEventListener('submit', async event => {
   event.preventDefault();
@@ -519,7 +533,12 @@ $('#login-form').addEventListener('submit', async event => {
   button.disabled = true; $('#login-error').textContent = '';
   try {
     const user = await api('/auth/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(Object.fromEntries(new FormData(form)))});
-    form.reset(); await enterAccount(user);
+    form.reset();
+    const recovery = loginRecovery;
+    loginRecovery = null;
+    $('#login-screen').close(); $('#login-screen').hidden = true;
+    recovery?.resolve(user);
+    await enterAccount(user);
   } catch(error) { $('#login-error').textContent = error.message; }
   finally { button.disabled = false; }
 });

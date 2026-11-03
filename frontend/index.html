@@ -4,10 +4,10 @@
   <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1428a0"><title>Samsung · Quản lý lớp môn học</title>
   <link rel="stylesheet" href="/static/styles.css?v=samsung1">
-  <link rel="stylesheet" href="/static/dashboard.css?v=samsung1">
+  <link rel="stylesheet" href="/static/dashboard.css?v=session-retry1">
 </head>
 <body>
-  <section id="login-screen" class="login-screen">
+  <dialog id="login-screen" class="login-screen" hidden>
     <form id="login-form" class="login-card">
       <img src="/static/assets/samsung-logo.svg" alt="Samsung" class="login-logo" width="180" height="28">
       <h1>Đăng nhập</h1><p>Điểm danh và quản lý lớp môn học.</p>
@@ -17,7 +17,7 @@
       <button class="button primary" type="submit">Đăng nhập</button>
       <small>Liên hệ người quản trị để được cấp tài khoản hoặc đặt lại mật khẩu.</small>
     </form>
-  </section>
+  </dialog>
   <aside class="sidebar" hidden>
     <a href="/" class="brand"><img class="brand-logo" src="/static/assets/samsung-logo.svg" alt="Logo Samsung" width="156" height="24"><span class="brand-copy">Lớp môn học Samsung<span class="brand-sub">QUẢN LÝ LỚP MÔN HỌC</span></span></a>
     <div class="workspace"><span class="school-icon">▦</span><div>Quản lý lớp môn học<small id="workspace-role">Quản lý điểm danh</small></div></div>
@@ -101,6 +101,6 @@
   <dialog id="schedules-dialog"><form><div class="dialog-heading"><h2>Lịch cố định</h2><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><p class="form-error" role="alert"></p><div id="schedules-list"></div><p class="dialog-description">Dừng lịch không xóa buổi và kết quả đã lưu. Muốn đổi giờ, dừng lịch rồi tạo lịch mới với tên khác.</p></form></dialog>
   <dialog id="enrollment-dialog"><form id="enrollment-form"><div class="dialog-heading"><h2>Ghi danh sinh viên</h2><button type="button" class="icon-button close-dialog" aria-label="Đóng">×</button></div><p id="enrollment-course"></p><label>Tìm sinh viên<input id="directory-search" type="search" placeholder="Nhập tên hoặc mã sinh viên"></label><label>Sinh viên đã có hồ sơ<select id="directory-student" name="student_id" required></select></label><p>Chỉ thêm vào lớp môn học đang chọn. Không cần chụp lại khuôn mặt.</p><p class="form-error" role="alert"></p><div class="dialog-actions"><button class="button primary" type="submit">Ghi danh</button></div></form></dialog>
   <dialog id="bulk-dialog" style="width:min(1000px,95vw)"><div class="dialog-heading"><h2>Nhập sinh viên hàng loạt</h2><button type="button" class="icon-button close-dialog">×</button></div><p>ZIP gồm danh_sach.csv (UTF-8) và ảnh. Tối đa 200 dòng, ZIP 50 MB. Lớp, giảng viên, thứ, giờ và phòng phải khớp lịch cố định.</p><p><a href="/static/import-template.csv" download>Tải CSV mẫu</a> · Thứ: 2–7 hoặc CN. Sinh viên đã có hồ sơ có thể để trống ảnh.</p><input id="bulk-file" type="file" accept=".zip"><button id="bulk-preview" class="button subtle">Xem trước</button><p id="bulk-status" role="status"></p><progress id="bulk-progress" value="0" max="1" style="width:100%"></progress><div class="table-scroll" style="max-height:400px"><table><thead><tr><th>Dòng</th><th>Sinh viên</th><th>Lớp / Giảng viên</th><th>Ca / Phòng</th><th>Kết quả</th></tr></thead><tbody id="bulk-rows"></tbody></table></div><p>Chỉ nhập các dòng hợp lệ. Ảnh mới được kiểm tra khuôn mặt khi xác nhận. Giữ trang mở khi xử lý; có thể tiếp tục nếu kết nối bị lỗi.</p><button id="bulk-confirm" class="button primary" disabled>Xác nhận nhập</button></dialog>
-  <div id="toast" role="status" hidden></div><script src="/static/app.js?v=session-details1" defer></script>
+  <div id="toast" role="status" hidden></div><script src="/static/app.js?v=session-retry1" defer></script>
 </body>
 </html>
